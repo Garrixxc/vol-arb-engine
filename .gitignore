@@ -1,0 +1,7 @@
+core/vol_core*.so
+core/cpp/build/
+__pycache__/
+*.pyc
+data/*.duckdb
+*.png
+.env
