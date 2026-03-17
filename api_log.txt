@@ -1,10 +1,4 @@
-Traceback (most recent call last):
-  File "/Users/gauravsalvi/Downloads/vol-arb-engine/api/main.py", line 16, in <module>
-    from backtest.engine import generate_synthetic_backtest_data, BacktestEngine, BacktestConfig
-  File "/Users/gauravsalvi/Downloads/vol-arb-engine/backtest/engine.py", line 43, in <module>
-    from signals.aggregator import run_full_signal_pipeline
-  File "/Users/gauravsalvi/Downloads/vol-arb-engine/backtest/../signals/aggregator.py", line 36, in <module>
-    from signals.term_structure import compute_term_structure_signals, print_term_structure_report
-  File "/Users/gauravsalvi/Downloads/vol-arb-engine/backtest/../signals/term_structure.py", line 111
-    from scipy.stats import norm
-IndentationError: expected an indented block after 'try' statement on line 110
+INFO:     Started server process [20999]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)

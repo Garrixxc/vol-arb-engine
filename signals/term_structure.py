@@ -108,12 +108,12 @@ def compute_term_structure_signals(
             F    = spot * np.exp((r - 0.013) * T)
             # Approximate 10Δ put log-moneyness
             try:
-    from scipy.stats import norm
-except ImportError:
-    import math
-    class norm:
-        @staticmethod
-        def ppf(p): return math.sqrt(2)*math.erfinv(2*p-1)
+                from scipy.stats import norm
+            except ImportError:
+                import math
+                class norm:
+                    @staticmethod
+                    def ppf(p): return math.sqrt(2)*math.erfinv(2*p-1)
             d1_10d = norm.ppf(0.10 + 1.0)  # put delta = -0.10 → N(d1) ≈ 0.10
             lm_10p = -d1_10d * atm_iv * np.sqrt(T) + 0.5 * atm_iv**2 * T
             iv_10p = vol_core.svi_vol(lm_10p, T, params)
