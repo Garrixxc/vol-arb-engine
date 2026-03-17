@@ -5,6 +5,21 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import math
+
+
+def sanitize_for_json(records: list) -> list:
+    """Replace NaN/Inf float values with None so they serialize cleanly to JSON."""
+    cleaned = []
+    for row in records:
+        cleaned_row = {}
+        for k, v in row.items():
+            if isinstance(v, float) and (math.isnan(v) or math.isinf(v)):
+                cleaned_row[k] = None
+            else:
+                cleaned_row[k] = v
+        cleaned.append(cleaned_row)
+    return cleaned
 
 # Add project root to path for imports
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -22,7 +37,6 @@ app = FastAPI(title="Vol Arb Engine API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -53,10 +67,9 @@ async def get_surface():
         iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
         params, fitted_df, _ = fit_surface(iv_surface, verbose=False)
         
-        # Format for JSON
-        # We need market points and model surface
-        market_points = fitted_df[fitted_df["option_type"] != "model"].to_dict(orient="records")
-        model_surface = fitted_df[fitted_df["option_type"] == "model"].to_dict(orient="records")
+        # Format for JSON — sanitize NaN/Inf to None for JSON compliance
+        market_points = sanitize_for_json(fitted_df[fitted_df["option_type"] != "model"].to_dict(orient="records"))
+        model_surface = sanitize_for_json(fitted_df[fitted_df["option_type"] == "model"].to_dict(orient="records"))
         
         return {
             "date": snap["date"],

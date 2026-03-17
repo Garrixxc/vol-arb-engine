@@ -131,7 +131,7 @@ const Dashboard = () => {
                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] rounded border border-primary/20">LIVE SNAPSHOT</span>
               </div>
             </div>
-            <div className="flex-1 rounded-lg overflow-hidden bg-[#0a0a0a]">
+            <div className="flex-1 rounded-lg overflow-hidden bg-[#0a0a0a] relative min-h-[400px]">
               <Plot
                 data={getPlotlyData()}
                 layout={{
@@ -148,7 +148,8 @@ const Dashboard = () => {
                   showlegend: false
                 }}
                 useResizeHandler={true}
-                className="w-full h-full"
+                style={{ width: '100%', height: '100%' }}
+                config={{ displayModeBar: false }}
               />
             </div>
           </div>
