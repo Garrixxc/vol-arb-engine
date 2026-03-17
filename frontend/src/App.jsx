@@ -13,9 +13,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [surf, sigs, bt] = await Promise.all([
-          fetch('http://localhost:8000/api/surface').then(res => res.json()),
-          fetch('http://localhost:8000/api/signals').then(res => res.json()),
-          fetch('http://localhost:8000/api/backtest/summary').then(res => res.json())
+          fetch('http://127.0.0.1:8000/api/surface').then(res => res.json()),
+          fetch('http://127.0.0.1:8000/api/signals').then(res => res.json()),
+          fetch('http://127.0.0.1:8000/api/backtest/summary').then(res => res.json())
         ]);
         setSurfaceData(surf);
         setSignals(sigs);
