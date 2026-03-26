@@ -19,21 +19,21 @@ In the options market, "Volatility" is a measure of how much a stock's price is 
 
 ## 🛠 How it's Implemented
 
-Aether is built using a "Hybrid" architecture to ensure it's both fast and beautiful.
+Aether is built using a **Pure Python** architecture for maximum portability and simplicity.
 
-### 1. The Muscle (C++)
-The heavy math — calculating option prices and solving for "Implied Volatility" — is written in **C++**. This allows Aether to process thousands of data points in milliseconds, which is critical for high-frequency trading.
+### 1. The Muscle (NumPy & SciPy)
+The heavy math — calculating option prices, Greeks (Delta, Gamma, Vega, Theta), and solving for "Implied Volatility" — is implemented using highly optimized **NumPy** and **SciPy** routines. This ensures high performance without the complexity of C++ dependencies.
 
-### 2. The Brain (SVI & Python)
+### 2. The Brain (SVI Calibration)
 We use a model called **SVI (Stochastic Volatility Inspired)**. 
-- It "fits" a smooth curve to the messy market data.
-- It enforces "no-arbitrage" conditions, ensuring the model itself is mathematically sound.
+- It "fits" a smooth curve to the messy market data using a robust L-BFGS-B optimizer.
+- It enforces "no-arbitrage" conditions (Butterfly and Calendar spread), ensuring the model is mathematically consistent.
 
 ### 3. The Eyes (Dash Dashboard)
-The UI is built with **Python Dash**. 
+The UI is built with **Dash by Plotly**. 
 - **Glassmorphism Design**: A premium, translucent dark-mode theme.
-- **Real-Time Updates**: Fetches live data from `yfinance` every minute.
-- **Interactive 3D**: Let's you rotate the volatility surface to see exactly where the market is mispriced.
+- **Real-Time Updates**: Fetches live data from `yfinance` every minute with automatic synthetic fallback.
+- **Interactive 3D**: Visualize the volatility surface in 3D to spot mispriced options instantly.
 
 ---
 
@@ -41,18 +41,9 @@ The UI is built with **Python Dash**.
 
 ### 1. Prerequisites
 - Python 3.10+
-- `cmake` (for building the math engine)
+- Requirements: `pip install numpy scipy pandas dash plotly yfinance duckdb`
 
-### 2. Build the Math Engine (One-time)
-```bash
-cd core/cpp
-mkdir build && cd build
-cmake ..
-make -j4
-cp vol_core*.so ../../
-```
-
-### 3. Run the Dashboard
+### 2. Run the Dashboard
 ```bash
 ./run.sh
 ```
