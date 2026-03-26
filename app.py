@@ -22,7 +22,7 @@ LIVE_DATA_MODE = True  # Set to True to fetch real SPY data
 TICKER = "SPY"
 
 # Initialize Dash app
-app = dash.Dash(__name__, title="Garrix Vol-Arb Engine")
+app = dash.Dash(__name__, title="Aether Vol-Arb Engine")
 
 # Global state to store backtest results
 BACKTEST_RESULTS = None
@@ -71,7 +71,7 @@ def create_header(capital, cum_pnl, spot_price=None):
     return html.Header([
         html.Div([
             html.Div([
-                html.H1("GARRIX VOL-ARB", style={'margin': 0, 'fontSize': '1.5rem', 'fontWeight': '900', 'color': '#ffffff', 'letterSpacing': '-0.02em'}),
+                html.H1("AETHER VOL-ARB", style={'margin': 0, 'fontSize': '1.5rem', 'fontWeight': '900', 'color': '#ffffff', 'letterSpacing': '-0.02em'}),
                 html.Div([
                     html.Span(mode_label, style={'fontSize': '0.65rem', 'color': mode_color, 'fontWeight': 'bold', 'border': f'1px solid {mode_color}', 'padding': '2px 6px', 'borderRadius': '4px', 'marginRight': '8px'}),
                     html.Span("M4 PRO v2.0", style={'fontSize': '0.65rem', 'color': '#8b949e', 'textTransform': 'uppercase', 'letterSpacing': '0.1em'})

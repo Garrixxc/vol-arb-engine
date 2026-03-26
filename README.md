@@ -1,4 +1,4 @@
-# Vol Arb Engine — Layer 1: BS Pricer + IV Solver + Data Pipeline
+# Aether Vol-Arb Engine — Layer 1: BS Pricer + IV Solver + Data Pipeline
 
 ## What's built
 - **C++ Black-Scholes pricer** with full Greeks (delta, gamma, vega, theta, rho)

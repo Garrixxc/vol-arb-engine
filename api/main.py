@@ -31,7 +31,7 @@ from core.svi import fit_surface
 from backtest.engine import generate_synthetic_backtest_data, BacktestEngine, BacktestConfig
 from signals.aggregator import run_full_signal_pipeline
 
-app = FastAPI(title="Vol Arb Engine API")
+app = FastAPI(title="Aether Vol-Arb Engine API")
 
 # Enable CORS for React frontend
 app.add_middleware(
