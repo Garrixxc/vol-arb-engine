@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import numpy as np
 import pandas as pd
 from typing import Dict, Tuple, Optional
-import vol_math
+import vol_core
 from no_arb_checks import full_arb_report
 
 
@@ -28,8 +28,8 @@ from no_arb_checks import full_arb_report
 #  Heuristic initial guess for SVI params
 #  based on ATM vol and rough skew estimate
 # ─────────────────────────────────────────────
-def _initial_guess(iv_slice: pd.DataFrame, T: float) -> vol_math.SVIParams:
-    p = vol_math.SVIParams()
+def _initial_guess(iv_slice: pd.DataFrame, T: float) -> vol_core.SVIParams:
+    p = vol_core.SVIParams()
 
     # ATM total variance
     atm_row = iv_slice.iloc[(iv_slice["log_moneyness"].abs()).argsort()].iloc[0]
@@ -96,7 +96,7 @@ def fit_surface(
         init = prev_params if prev_params is not None else _initial_guess(slice_df, T)
 
         # Fit SVI — Pure Python solver
-        result = vol_math.calibrate_svi(ks, ivs, T, init)
+        result = vol_core.calibrate_svi(ks, ivs, T, init)
         p      = result.params
 
         status = "✓ OK" if result.converged else "⚠ WARN"
@@ -113,13 +113,13 @@ def fit_surface(
             slice_df["log_moneyness"].max() + 0.02,
             150
         )
-        svi_vols_dense = vol_math.svi_vol_vec(k_dense, T, p)
+        svi_vols_dense = vol_core.svi_vol_vec(k_dense, T, p)
 
         # Market points vs model
         for _, row in slice_df.iterrows():
             k         = row["log_moneyness"]
             mkt_iv    = row["market_iv"]
-            model_iv  = vol_math.svi_vol(k, T, p)
+            model_iv  = vol_core.svi_vol(k, T, p)
             mispricing = mkt_iv - model_iv  # +ve = market richer than model
 
             # Normalize by bid-ask spread for signal quality

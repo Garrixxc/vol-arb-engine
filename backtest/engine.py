@@ -36,7 +36,7 @@ import numpy as np
 import pandas as pd
 from typing import List, Optional, Dict, Callable
 from datetime import datetime, timedelta
-import core.vol_math as vol_math
+import vol_core
 
 from core.iv_surface import compute_iv_surface
 from core.svi import fit_surface
@@ -299,7 +299,7 @@ def generate_synthetic_backtest_data(
                 iv    = max(np.sqrt(w/T) + noise, 0.05)
 
                 for opt, cp in [("call",1), ("put",-1)]:
-                    mid  = vol_math.bs_price(spot, k, r, q, iv, T, cp)
+                    mid  = vol_core.bs_price(spot, k, r, q, iv, T, cp)
                     half = mid * (0.010 + 0.012*abs(lm))
                     records.append({
                         "ticker": "SPY", "expiry": exp_date,

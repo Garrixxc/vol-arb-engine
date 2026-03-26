@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'core'))
 import numpy as np
 import pandas as pd
 from typing import Dict, Optional, Tuple
-import vol_math
+import vol_core
 
 
 def interpolate_iv_at_delta(
@@ -58,7 +58,7 @@ def interpolate_iv_at_delta(
     cp = 1 if option_type == "call" else -1
 
     # Initial guess: approximate using ATM vol
-    atm_iv  = vol_math.svi_vol(0.0, T, params)
+    atm_iv  = vol_core.svi_vol(0.0, T, params)
     sqrtT   = math.sqrt(T)
 
     # Approximate strike for target delta:
@@ -78,11 +78,11 @@ def interpolate_iv_at_delta(
     # NR loop: find K such that delta(K) = target_delta
     for _ in range(max_iter):
         k_lm  = math.log(K / F)
-        iv    = vol_math.svi_vol(k_lm, T, params)
+        iv    = vol_core.svi_vol(k_lm, T, params)
         if iv <= 0:
             break
 
-        g     = vol_math.bs_greeks(spot, K, r, q, iv, T, cp)
+        g     = vol_core.bs_greeks(spot, K, r, q, iv, T, cp)
         delta = g.delta
         gamma = g.gamma
 
@@ -104,7 +104,7 @@ def interpolate_iv_at_delta(
         K = min(K, spot * 2.0)
 
     k_lm = math.log(max(K, 1e-6) / F)
-    iv   = vol_math.svi_vol(k_lm, T, params)
+    iv   = vol_core.svi_vol(k_lm, T, params)
     return K, iv
 
 
@@ -131,7 +131,7 @@ def compute_skew_metrics(
         dte = int(round(T * 365))
 
         # ATM vol
-        atm_iv = vol_math.svi_vol(0.0, T, params)
+        atm_iv = vol_core.svi_vol(0.0, T, params)
 
         # 25Δ put and call vols
         try:
