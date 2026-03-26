@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 from typing import Dict, Tuple, Optional
-import vol_core
+import vol_math
 
 
 # ─────────────────────────────────────────────
@@ -100,7 +100,7 @@ def compute_term_structure_signals(
     records = []
     for expiry, (params, T) in sorted(params_by_expiry.items(),
                                        key=lambda x: x[1][1]):
-        atm_iv = vol_core.svi_vol(0.0, T, params)
+        atm_iv = vol_math.svi_vol(0.0, T, params)
         dte    = int(round(T * 365))
 
         # Also compute 10Δ put vol for tail richness signal
@@ -116,7 +116,7 @@ def compute_term_structure_signals(
                     def ppf(p): return math.sqrt(2)*math.erfinv(2*p-1)
             d1_10d = norm.ppf(0.10 + 1.0)  # put delta = -0.10 → N(d1) ≈ 0.10
             lm_10p = -d1_10d * atm_iv * np.sqrt(T) + 0.5 * atm_iv**2 * T
-            iv_10p = vol_core.svi_vol(lm_10p, T, params)
+            iv_10p = vol_math.svi_vol(lm_10p, T, params)
         except Exception:
             iv_10p = atm_iv
 

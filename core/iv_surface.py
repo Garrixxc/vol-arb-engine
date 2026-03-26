@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import numpy as np
 import pandas as pd
-import vol_core  # C++ extension
+import vol_math
 
 
 def compute_iv_surface(
@@ -57,8 +57,8 @@ def compute_iv_surface(
         T_arr     = np.full(len(strikes), T)
         S         = float(spot)
 
-        # Call vectorized C++ IV solver
-        ivs = vol_core.implied_vol_vec(S, strikes, r, q, prices, T_arr, cp_flags)
+        # Call vectorized Python IV solver
+        ivs = vol_math.implied_vol_vec(S, strikes, r, q, prices, T_arr, cp_flags)
 
         for i, (_, row) in enumerate(slice_df.iterrows()):
             iv = ivs[i]

@@ -28,7 +28,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Tuple
 import sys, os
 sys.path.insert(0, os.path.dirname(__file__))
-import vol_core
+import vol_math
 
 
 @dataclass
@@ -108,8 +108,8 @@ def check_calendar(params_by_expiry: Dict[str, Tuple],
         exp1, (p1, T1) = items[i]
         exp2, (p2, T2) = items[i + 1]
 
-        w1 = np.array([vol_core.svi_w(k, p1) for k in k_grid])
-        w2 = np.array([vol_core.svi_w(k, p2) for k in k_grid])
+        w1 = np.array([vol_math.svi_w(k, p1) for k in k_grid])
+        w2 = np.array([vol_math.svi_w(k, p2) for k in k_grid])
 
         # Calendar arb: w2 must be >= w1 everywhere
         # Allow small tolerance for numerical noise

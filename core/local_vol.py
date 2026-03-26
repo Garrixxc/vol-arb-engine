@@ -32,7 +32,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 import numpy as np
 import pandas as pd
 from typing import Dict, Tuple
-import vol_core
+import vol_math
 
 
 def local_vol_surface(
@@ -70,24 +70,24 @@ def local_vol_surface(
             # Forward difference
             T2, p2 = Ts[1], params[1]
             dT_actual = T2 - T
-            w1 = np.array([vol_core.svi_w(k, p)  for k in k_grid])
-            w2 = np.array([vol_core.svi_w(k, p2) for k in k_grid])
+            w1 = np.array([vol_math.svi_w(k, p)  for k in k_grid])
+            w2 = np.array([vol_math.svi_w(k, p2) for k in k_grid])
             dw_dT = (w2 - w1) / dT_actual
 
         elif i == len(Ts) - 1 and len(Ts) > 1:
             # Backward difference
             T0, p0 = Ts[i-1], params[i-1]
             dT_actual = T - T0
-            w0 = np.array([vol_core.svi_w(k, p0) for k in k_grid])
-            w1 = np.array([vol_core.svi_w(k, p)  for k in k_grid])
+            w0 = np.array([vol_math.svi_w(k, p0) for k in k_grid])
+            w1 = np.array([vol_math.svi_w(k, p)  for k in k_grid])
             dw_dT = (w1 - w0) / dT_actual
 
         elif len(Ts) > 2:
             # Central difference
             T0, p0 = Ts[i-1], params[i-1]
             T2, p2 = Ts[i+1], params[i+1]
-            w0 = np.array([vol_core.svi_w(k, p0) for k in k_grid])
-            w2 = np.array([vol_core.svi_w(k, p2) for k in k_grid])
+            w0 = np.array([vol_math.svi_w(k, p0) for k in k_grid])
+            w2 = np.array([vol_math.svi_w(k, p2) for k in k_grid])
             dw_dT = (w2 - w0) / (T2 - T0)
         else:
             # Only one expiry — can't compute ∂w/∂T
@@ -119,7 +119,7 @@ def local_vol_surface(
 
         F     = spot * np.exp((r - q) * T)
         K_arr = F * np.exp(k_grid)
-        iv_arr = vol_core.svi_vol_vec(k_grid, T, p)
+        iv_arr = vol_math.svi_vol_vec(k_grid, T, p)
 
         for j in range(len(k_grid)):
             records.append({

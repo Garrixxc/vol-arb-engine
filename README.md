@@ -1,49 +1,69 @@
-# Aether Vol-Arb Engine — Layer 1: BS Pricer + IV Solver + Data Pipeline
+# 🌌 Aether Vol-Arb Engine
 
-## What's built
-- **C++ Black-Scholes pricer** with full Greeks (delta, gamma, vega, theta, rho)
-- **C++ IV solver** — Newton-Raphson with Brent fallback, converges to 1e-8
-- **pybind11 bindings** — vectorized numpy interface, process full chains in one call
-- **yfinance fetcher** — live SPX/SPY options chain with spread filtering
-- **DuckDB storage** — persist and query chains + IV surfaces
+A high-performance, real-time volatility arbitrage engine designed for speed and precision. Aether identifies "mispriced" options by comparing live market data against a sophisticated mathematical model in real-time.
 
-## Setup (on your machine)
+---
 
+## 🧐 What does it do? (In simple terms)
+
+In the options market, "Volatility" is a measure of how much a stock's price is expected to swing. Every option has an "Implied Volatility" (IV) based on its market price.
+
+**Aether's Job:**
+1.  **Build a Map**: It looks at hundreds of options at once and builds a 3D "Volatility Surface" (the "map" of what volatility *should* look like).
+2.  **Spot the Gaps**: It uses a mathematical model (SVI) to find the "true" shape of that map.
+3.  **Find the Deals**: If a specific option's price is significantly different from the model (too cheap or too expensive), Aether flags it as a **Signal**. 
+
+**Arbitrage** means buying the cheap one and selling the expensive one to capture the difference.
+
+---
+
+## 🛠 How it's Implemented
+
+Aether is built using a "Hybrid" architecture to ensure it's both fast and beautiful.
+
+### 1. The Muscle (C++)
+The heavy math — calculating option prices and solving for "Implied Volatility" — is written in **C++**. This allows Aether to process thousands of data points in milliseconds, which is critical for high-frequency trading.
+
+### 2. The Brain (SVI & Python)
+We use a model called **SVI (Stochastic Volatility Inspired)**. 
+- It "fits" a smooth curve to the messy market data.
+- It enforces "no-arbitrage" conditions, ensuring the model itself is mathematically sound.
+
+### 3. The Eyes (Dash Dashboard)
+The UI is built with **Python Dash**. 
+- **Glassmorphism Design**: A premium, translucent dark-mode theme.
+- **Real-Time Updates**: Fetches live data from `yfinance` every minute.
+- **Interactive 3D**: Let's you rotate the volatility surface to see exactly where the market is mispriced.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- Python 3.10+
+- `cmake` (for building the math engine)
+
+### 2. Build the Math Engine (One-time)
 ```bash
-# Install Python deps
-pip install pybind11 yfinance duckdb pandas numpy scipy
-
-# Install cmake (macOS: brew install cmake, Ubuntu: apt install cmake)
-
-# Build C++ extension
 cd core/cpp
 mkdir build && cd build
-cmake .. -Dpybind11_DIR=$(python3 -c "import pybind11; print(pybind11.get_cmake_dir())")
-make -j$(nproc)
-cp vol_core*.so ../../    # copy .so to core/
+cmake ..
+make -j4
+cp vol_core*.so ../../
 ```
 
-## Quick start
-
-```python
-import sys
-sys.path.insert(0, 'core')
-import vol_core
-
-# Single option
-price = vol_core.bs_price(S=580, K=580, r=0.053, q=0.013, v=0.20, T=0.25, call_put=1)
-iv    = vol_core.implied_vol(S=580, K=580, r=0.053, q=0.013,
-                              market_price=price, T=0.25, call_put=1)
-
-# Full chain (vectorized)
-from data.fetchers.yfinance_fetcher import fetch_options_chain
-from core.iv_surface import compute_iv_surface
-
-chain, spot = fetch_options_chain("SPY", min_dte=7, max_dte=120)
-iv_surface  = compute_iv_surface(chain, r=0.053, q=0.013)
+### 3. Run the Dashboard
+```bash
+./run.sh
 ```
+Open **`http://localhost:8050`** in your browser.
 
-## What's next — Layer 2
-- SVI parameterization: fit `w(k) = a + b[ρ(k-m) + √((k-m)²+σ²)]` to each expiry
-- Constrained optimization enforcing butterfly + calendar no-arb conditions
-- Mispricing signal: `market_iv - SVI_iv` normalized by bid-ask spread
+---
+
+## 🧪 Technical Strategy
+- **Layer 1**: BS Pricer + IV Solver (C++ Vectorized)
+- **Layer 2**: SVI Surface Calibration (Levenberg-Marquardt)
+- **Layer 3**: SNR-based Relative Value Signals
+
+---
+*Created by Antigravity for Gaurav Salvi.*

@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict
-import vol_core
+import vol_math
 
 
 @dataclass
@@ -88,7 +88,7 @@ class Position:
         self.current_iv    = self.entry_iv
         self.current_T     = self._dte_from_expiry(self.entry_date) / 365.0
         cp = 1 if self.option_type == "call" else -1
-        g  = vol_core.bs_greeks(self.entry_spot, self.strike, self.r, self.q,
+        g  = vol_math.bs_greeks(self.entry_spot, self.strike, self.r, self.q,
                                  self.entry_iv, self.current_T, cp)
         self.current_delta = g.delta
         self.gamma         = g.gamma
@@ -117,7 +117,7 @@ class Position:
 
         # Option P&L: (new_price - old_price) * direction * contracts * 100
         if T_new > 0:
-            new_price = vol_core.bs_price(new_spot, self.strike, self.r, self.q,
+            new_price = vol_math.bs_price(new_spot, self.strike, self.r, self.q,
                                           new_iv, T_new, cp)
         else:
             new_price = max(cp * (new_spot - self.strike), 0.0)
@@ -132,7 +132,7 @@ class Position:
 
         # Update Greeks
         if T_new > 1/365:
-            g = vol_core.bs_greeks(new_spot, self.strike, self.r, self.q,
+            g = vol_math.bs_greeks(new_spot, self.strike, self.r, self.q,
                                     new_iv, T_new, cp)
             self.current_delta = g.delta
             self.gamma         = g.gamma
@@ -247,7 +247,7 @@ class PortfolioManager:
         if T <= 0:
             return None
 
-        price = vol_core.bs_price(spot, signal.strike, r, q,
+        price = vol_math.bs_price(spot, signal.strike, r, q,
                                    signal.market_iv, T, cp)
 
         pos = Position(
