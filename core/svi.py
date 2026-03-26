@@ -108,11 +108,7 @@ def fit_surface(
         prev_params = p  # warm start for next expiry
 
         # ── Build fitted records ──────────────────────────────
-        k_dense = np.linspace(
-            slice_df["log_moneyness"].min() - 0.02,
-            slice_df["log_moneyness"].max() + 0.02,
-            150
-        )
+        k_dense = np.linspace(-0.5, 0.5, 100)
         svi_vols_dense = vol_core.svi_vol_vec(k_dense, T, p)
 
         # Market points vs model

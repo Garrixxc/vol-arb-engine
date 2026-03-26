@@ -31,7 +31,7 @@ def get_backtest_results():
     global BACKTEST_RESULTS
     if BACKTEST_RESULTS is None:
         print("Initializing synthetic backtest for dashboard...")
-        snapshots = generate_synthetic_backtest_data(n_days=90)
+        snapshots = generate_synthetic_backtest_data(n_days=10) # Faster initial load
         engine = BacktestEngine(BacktestConfig(capital=1000000))
         BACKTEST_RESULTS = engine.run(snapshots, verbose=False)
     return BACKTEST_RESULTS
@@ -111,16 +111,17 @@ def update_dashboard(n):
     event_log = bt_results["event_log"]
     cum_pnl = event_log["cum_pnl"].iloc[-1]
     
-    # 3D Surface Plot
-    expiries = sorted(model['dte'].unique())
-    logM = sorted(model['log_moneyness'].unique())
-    z = []
-    for dte in expiries:
-        row = []
-        for k in logM:
-            point = model[(model['dte'] == dte) & (np.isclose(model['log_moneyness'], k, atol=1e-5))]
-            row.append(point['svi_iv'].iloc[0] if not point.empty else None)
-        z.append(row)
+    # 3D Surface Plot - Robust version with interpolation
+    try:
+        pivot = model.pivot_table(index='dte', columns='log_moneyness', values='svi_iv')
+        # Interpolate to fill any tiny gaps in the mesh
+        pivot = pivot.interpolate(axis=1).bfill(axis=1)
+        z = pivot.values
+        expiries = pivot.index
+        logM = pivot.columns
+    except Exception as e:
+        print(f"Surface pivot failed: {e}")
+        expiries, logM, z = [], [], []
 
     fig_3d = go.Figure()
     fig_3d.add_trace(go.Surface(
