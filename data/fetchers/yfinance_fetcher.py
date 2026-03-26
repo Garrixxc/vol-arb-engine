@@ -26,7 +26,7 @@ def fetch_options_chain(
     max_dte: int = 365,      # Maximum DTE — far-dated options are illiquid
     min_open_interest: int = 50,
     min_volume: int = 0,
-    spread_filter: float = 0.5,  # Drop quotes where (ask-bid)/mid > this threshold
+    spread_filter: float = 1.5,  # Drop quotes where (ask-bid)/mid > this threshold
 ) -> pd.DataFrame:
     """
     Returns a cleaned DataFrame with columns:

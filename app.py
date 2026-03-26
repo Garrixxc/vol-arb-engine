@@ -43,15 +43,18 @@ def get_latest_data():
             print(f"Fetching live data for {TICKER}...")
             chain, spot = fetch_options_chain(TICKER)
             snap = {"date": datetime.now().strftime("%Y-%m-%d"), "spot": spot, "chain": chain}
+            
+            # Try to compute surface, if too sparse, fallback to synthetic
+            iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
         except Exception as e:
-            print(f"Error fetching live data: {e}. Falling back to synthetic.")
+            print(f"Live data failed or too sparse: {e}. Falling back to synthetic.")
             snapshots = generate_synthetic_backtest_data(n_days=1)
             snap = snapshots[0]
+            iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
     else:
         snapshots = generate_synthetic_backtest_data(n_days=1)
         snap = snapshots[0]
-        
-    iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
+        iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
     params, fitted_df, _ = fit_surface(iv_surface, verbose=False)
     
     market_points = fitted_df[fitted_df["option_type"] != "model"]
