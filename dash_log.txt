@@ -7,3 +7,27 @@ Dash is running on http://0.0.0.0:8050/
  * Running on http://127.0.0.1:8050
  * Running on http://192.168.2.83:8050
 [33mPress CTRL+C to quit[0m
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/deps/polyfill@7.v4_1_0m1774517887.12.1.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/deps/react@18.v4_1_0m1774517887.3.1.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/deps/react-dom@18.v4_1_0m1774517887.3.1.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/deps/prop-types@15.v4_1_0m1774517887.8.1.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/dash-renderer/build/dash_renderer.v4_1_0m1774517887.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/dcc/dash_core_components.v4_1_0m1774517887.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/dcc/dash_core_components-shared.v4_1_0m1774517887.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/html/dash_html_components.v4_1_0m1774517887.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-component-suites/dash/dash_table/bundle.v7_1_0m1774517887.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:31] "GET /_favicon.ico?v=4.1.0 HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:33] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:33] "GET /_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:33] "GET /_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:33] "GET /_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:43:33] "GET /_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:44:32] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:45:32] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:46:32] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:47:32] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:48:32] "POST /_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [26/Mar/2026 02:49:32] "POST /_dash-update-component HTTP/1.1" 200 -

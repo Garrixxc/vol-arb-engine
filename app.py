@@ -15,6 +15,11 @@ sys.path.insert(0, os.path.join(PROJECT_ROOT, "core"))
 from core.iv_surface import compute_iv_surface
 from core.svi import fit_surface
 from backtest.engine import generate_synthetic_backtest_data, BacktestEngine, BacktestConfig
+from data.fetchers.yfinance_fetcher import fetch_options_chain
+
+# Configuration
+LIVE_DATA_MODE = True  # Set to True to fetch real SPY data
+TICKER = "SPY"
 
 # Initialize Dash app
 app = dash.Dash(__name__, title="Garrix Vol-Arb Engine")
@@ -33,8 +38,19 @@ def get_backtest_results():
 
 def get_latest_data():
     """Generates the latest surface and signal data."""
-    snapshots = generate_synthetic_backtest_data(n_days=1)
-    snap = snapshots[0]
+    if LIVE_DATA_MODE:
+        try:
+            print(f"Fetching live data for {TICKER}...")
+            chain, spot = fetch_options_chain(TICKER)
+            snap = {"date": datetime.now().strftime("%Y-%m-%d"), "spot": spot, "chain": chain}
+        except Exception as e:
+            print(f"Error fetching live data: {e}. Falling back to synthetic.")
+            snapshots = generate_synthetic_backtest_data(n_days=1)
+            snap = snapshots[0]
+    else:
+        snapshots = generate_synthetic_backtest_data(n_days=1)
+        snap = snapshots[0]
+        
     iv_surface = compute_iv_surface(snap["chain"], r=0.053, q=0.013)
     params, fitted_df, _ = fit_surface(iv_surface, verbose=False)
     
@@ -47,26 +63,37 @@ def get_latest_data():
     return snap, market_points, model_surface, signals
 
 # Layout components
-def create_header(capital, cum_pnl):
+def create_header(capital, cum_pnl, spot_price=None):
     pnl_color = "#3fb950" if cum_pnl >= 0 else "#f85149"
+    mode_label = "LIVE TRADING" if LIVE_DATA_MODE else "SIMULATION"
+    mode_color = "#3fb950" if LIVE_DATA_MODE else "#8b949e"
+    
     return html.Header([
         html.Div([
             html.Div([
-                html.H1("GARRIX VOL-ARB", style={'margin': 0, 'fontSize': '1.5rem', 'fontWeight': 'bold'}),
-                html.P("M4 Pro High-Frequency Engine", style={'margin': 0, 'fontSize': '0.75rem', 'color': '#8b949e', 'textTransform': 'uppercase', 'letterSpacing': '0.1em'})
+                html.H1("GARRIX VOL-ARB", style={'margin': 0, 'fontSize': '1.5rem', 'fontWeight': '900', 'color': '#ffffff', 'letterSpacing': '-0.02em'}),
+                html.Div([
+                    html.Span(mode_label, style={'fontSize': '0.65rem', 'color': mode_color, 'fontWeight': 'bold', 'border': f'1px solid {mode_color}', 'padding': '2px 6px', 'borderRadius': '4px', 'marginRight': '8px'}),
+                    html.Span("M4 PRO v2.0", style={'fontSize': '0.65rem', 'color': '#8b949e', 'textTransform': 'uppercase', 'letterSpacing': '0.1em'})
+                ], style={'display': 'flex', 'alignItems': 'center', 'marginTop': '4px'})
             ])
         ], className="header-left"),
+        
         html.Div([
             html.Div([
-                html.P("Total Capital", style={'fontSize': '0.75rem', 'color': '#8b949e', 'margin': 0}),
-                html.P(f"${capital:,.0f}", style={'fontSize': '1.25rem', 'fontFamily': 'monospace', 'fontWeight': 'bold', 'margin': 0})
+                html.P("INDEX SPOT", style={'fontSize': '0.65rem', 'color': '#8b949e', 'margin': 0, 'fontWeight': 'bold'}),
+                html.P(f"${spot_price:,.2f}" if spot_price else "---", style={'fontSize': '1.25rem', 'fontFamily': 'monospace', 'fontWeight': '900', 'margin': 0, 'color': '#ffffff'})
             ], style={'textAlign': 'right'}),
             html.Div([
-                html.P("Cum. P&L", style={'fontSize': '0.75rem', 'color': '#8b949e', 'margin': 0}),
-                html.P(f"${cum_pnl:,.0f}", style={'fontSize': '1.25rem', 'fontFamily': 'monospace', 'fontWeight': 'bold', 'margin': 0, 'color': pnl_color})
+                html.P("PORTFOLIO CAPITAL", style={'fontSize': '0.65rem', 'color': '#8b949e', 'margin': 0, 'fontWeight': 'bold'}),
+                html.P(f"${capital:,.0f}", style={'fontSize': '1.25rem', 'fontFamily': 'monospace', 'fontWeight': '900', 'margin': 0, 'color': '#ffffff'})
+            ], style={'textAlign': 'right'}),
+            html.Div([
+                html.P("UNREALIZED P&L", style={'fontSize': '0.65rem', 'color': '#8b949e', 'margin': 0, 'fontWeight': 'bold'}),
+                html.P(f"${cum_pnl:,.0f}", style={'fontSize': '1.25rem', 'fontFamily': 'monospace', 'fontWeight': '900', 'margin': 0, 'color': pnl_color})
             ], style={'textAlign': 'right'})
-        ], style={'display': 'flex', 'gap': '2rem'})
-    ], className="glass-panel", style={'display': 'flex', 'justifyContent': 'space-between', 'alignItems': 'center', 'padding': '1rem', 'borderRadius': '0.75rem', 'marginBottom': '1.5rem'})
+        ], style={'display': 'flex', 'gap': '2.5rem'})
+    ], className="glass-panel main-header", style={'padding': '1.25rem 2rem', 'borderRadius': '1rem', 'marginBottom': '1.5rem'})
 
 app.layout = html.Div([
     dcc.Interval(id='interval-component', interval=60*1000, n_intervals=0),
@@ -120,22 +147,22 @@ def update_dashboard(n):
     fig_pnl = go.Figure()
     fig_pnl.add_trace(go.Scatter(
         x=event_log['date'], y=event_log['cum_pnl'],
-        fill='tozeroy', mode='lines', line=dict(color='#3fb950'),
-        fillcolor='rgba(63, 185, 80, 0.2)', name='Cumulative P&L'
+        fill='tozeroy', mode='lines', line=dict(color='#3fb950', width=3),
+        fillcolor='rgba(63, 185, 80, 0.1)', name='Cumulative P&L'
     ))
     fig_pnl.update_layout(
         template='plotly_dark',
-        margin=dict(l=40, r=20, b=40, t=40),
+        margin=dict(l=40, r=20, b=40, t=20),
         height=300,
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(title='Date', gridcolor='#30363d', showgrid=False),
-        yaxis=dict(title='P&L', gridcolor='#30363d'),
-        title=dict(text="Strategy Performance", font=dict(size=16))
+        xaxis=dict(title=None, gridcolor='#30363d', showgrid=False),
+        yaxis=dict(title='P&L ($)', gridcolor='#30363d', zerolinecolor='#8b949e'),
+        font=dict(family="JetBrains Mono, monospace", size=10)
     )
 
     return [
-        create_header(1000000, cum_pnl),
+        create_header(1000000, cum_pnl, snap.get("spot")),
         html.Div([
             # Left Column
             html.Div([
@@ -176,7 +203,7 @@ def update_dashboard(n):
         ], style={'display': 'flex', 'gap': '1.5rem'})
     ]
 
-# Inject CSS for glass panel effect
+# Inject CSS for glass panel effect and premium fonts
 app.index_string = '''
 <!DOCTYPE html>
 <html>
@@ -185,13 +212,42 @@ app.index_string = '''
         <title>{%title%}</title>
         {%favicon%}
         {%css%}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
         <style>
-            body { margin: 0; background-color: #0d1117; }
-            .glass-panel {
-                background: rgba(22, 27, 34, 0.7);
-                backdrop-filter: blur(12px);
-                border: 1px solid rgba(48, 54, 61, 0.5);
+            body { 
+                margin: 0; 
+                background-color: #05070a; 
+                background-image: 
+                    radial-gradient(circle at 50% 0%, rgba(33, 38, 45, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 0% 100%, rgba(31, 111, 235, 0.05) 0%, transparent 30%);
+                color: #e6edf3;
+                font-family: 'Inter', sans-serif;
             }
+            .glass-panel {
+                background: rgba(13, 17, 23, 0.7);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
+                border: 1px solid rgba(48, 54, 61, 0.6);
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            }
+            .main-header {
+                background: linear-gradient(135deg, rgba(22, 27, 34, 0.8), rgba(13, 17, 23, 0.8));
+                border-bottom: 1px solid rgba(56, 139, 253, 0.3);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            h1, h2, h3 { color: #f0f6fc; }
+            .dash-table-container .dash-spreadsheet-container .dash-spreadsheet {
+                border: none !important;
+            }
+            /* Custom Scrollbar */
+            ::-webkit-scrollbar { width: 8px; }
+            ::-webkit-scrollbar-track { background: #0d1117; }
+            ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+            ::-webkit-scrollbar-thumb:hover { background: #484f58; }
         </style>
     </head>
     <body>
